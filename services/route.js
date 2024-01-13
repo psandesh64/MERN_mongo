@@ -29,4 +29,9 @@ router.post('/api/contacts',(request,response) => {
     })
 })
 
+router.delete('/api/contacts/:id',(request,response) => {
+    Contact.findByIdandDelete(request.params.id)
+    .then(result => response.status(204).json({status:'Contact Deleted'}))
+    .catch(error => response.status(500).json({error: 'Internal Server Error'}))   
+})
 module.exports =  router
