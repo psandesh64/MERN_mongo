@@ -1,21 +1,44 @@
-require('dotenv').config()
 const express = require('express')
 const app = express()
-const Contact = require('./mongo')
-const route =require('./services/route')
+const {MONGODB_URL,PORT} = require('./utils/config')
+const logger = require('./utils/logger')
+
+
 const mongoose = require('mongoose')
-
-const url = process.env.MONGODB_URL
-
 mongoose.set('strictQuery',false)
-mongoose.connect(url)
+mongoose.connect(MONGODB_URL)
 .then(result => console.log('connected to MongoDB'))
 .catch(error => console.log('error connecting to MongoDB:',error.message))
 
 app.use(express.json())
 
-app.use(route)
-const PORT = process.env.PORT
+const requestLogger = (req,res,next) => {
+    logger.info('Method :',req.method)
+    logger.info('Path :',req.path)
+    logger.info('Body :',req.body)
+    console.log('--------------------')
+    next()
+}
+app.use(requestLogger)
+
+const route =require('./services/route')
+app.use('/',route)
+
+const errorHandler = (error, request, response, next) => {
+    logger.error(error.name)
+    logger.error(error.message)
+    if (error.name === 'CastError') {
+        return response.status(400).send({error: 'malformatted id'})
+    }
+    next()
+}
+app.use(errorHandler)
+
+const unknownEndpoint = (req,res)=>{
+    res.status(404).send({message:':/'})
+}
+app.use(unknownEndpoint)
+
 app.listen(PORT, ()=>{
-    console.log(`Server running on port ${PORT}`)
+    logger.info(`Server running on port http://localhost:${PORT}`)
 })
