@@ -36,6 +36,21 @@ router.post('/api/contacts',(request,response,next) => {
     .catch(error => next(error))
 })
 
+router.put('/api/contacts/:id',(request,response,next) => {
+    updatedid = request.params.id
+    const body = request.body;
+
+    if (!body.contact_id) {
+        return response.status(400).json({ error: 'content missing' });
+    }
+    Contact.findByIdAndUpdate(updatedid,
+        {$set: { contact_id: body.contact_id, number: body.number }},
+        {new: true}
+        )
+    .then(result => response.status(200).json({message : 'contact updated'}))
+    .catch(error => next(error))
+}
+)
 
 router.delete('/api/contacts/:id',(request,response) => {
     Contact.findByIdAndDelete(request.params.id)
