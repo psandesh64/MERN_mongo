@@ -18,18 +18,24 @@ router.post('/api/contacts',(request,response,next) => {
     if (body.contact_id === undefined) {
         return response.status(400).json({error: 'content missing'})
     }
-
-    const contact = new Contact({
-        contact_id: body.contact_id,
-        number: body.number
-    })
-
-    contact.save().then(result => {
-        response.json(result)
+    Contact.findOneAndUpdate({ contact_id: body.contact_id },
+        { $set: { number: body.number } },
+        { new: true })
+    .then(result => {
+        if (!result){
+            const contact = new Contact({
+                contact_id: body.contact_id,
+                number: body.number,
+              });
+              
+              contact.save()
+              return response.json({message:'contact created'})
+        }
+        else{response.json({message:'contact updated'})}
     })
     .catch(error => next(error))
-    response.end()
 })
+
 
 router.delete('/api/contacts/:id',(request,response) => {
     Contact.findByIdAndDelete(request.params.id)
