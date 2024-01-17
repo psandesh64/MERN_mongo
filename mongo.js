@@ -1,7 +1,9 @@
 const mongoose = require('mongoose')
 
 const contactSchema = new mongoose.Schema({
-    contact_id: String,
+    contact_id: {
+        type: String,
+        minLength: 3},
     number: Number
 })
 

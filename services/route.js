@@ -28,8 +28,8 @@ router.post('/api/contacts',(request,response,next) => {
                 number: body.number,
               });
               
-              contact.save()
-              return response.json({message:'contact created'})
+              contact.save().then(result => response.json({message:'contact created'}))
+              .catch(error => next(error))
         }
         else{response.json({message:'contact updated'})}
     })
