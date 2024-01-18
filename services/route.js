@@ -20,7 +20,7 @@ router.post('/api/contacts',(request,response,next) => {
     }
     Contact.findOneAndUpdate({ contact_id: body.contact_id },
         { $set: { number: body.number } },
-        { new: true })
+        { new: true,runValidators: true})
     .then(result => {
         if (!result){
             const contact = new Contact({
